@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"The World Heritage Convention, adopted by the United Nations Educational, Scientific and Cultural Organization (UNESCO), provides an international framework for identifying, protecting and preserving cultural and natural heritage of Outstanding Universal Value (OUV). On which date was this convention adopted?", options:["17 December 1975","16 November 1972","14 November 1977","2 February 1971"], answer:1},
+
+{q:"The UNESCO World Heritage Convention, which aims to protect cultural and natural heritage of outstanding universal value, officially came into force on which date?", options:["16 November 1972","14 November 1977","17 December 1975","1 January 1976"], answer:2},
+
+{q:"The UNESCO World Heritage Centre, established in 1992 as the focal point and coordinator for World Heritage-related matters, is headquartered in which city?", options:["Geneva, Switzerland","New York, USA","Rome, Italy","Paris, France"], answer:3},
+
+{q:"The UNESCO World Heritage Centre was established in 1992 and serves as the Secretariat for which international convention?", options:["1972 World Heritage Convention","1971 Ramsar Convention","2003 Convention for the Safeguarding of Intangible Cultural Heritage","1992 Convention on Biological Diversity"], answer:0},
+
+{q:"India became a State Party to the UNESCO World Heritage Convention by ratifying it on which date, thereby committing itself to protecting cultural and natural heritage of Outstanding Universal Value (OUV)?", options:["16 November 1972","14 November 1977","17 December 1975","26 January 1950"], answer:1},
+
+{q:"UNESCO classifies World Heritage Sites into three major categories based on their heritage significance. Which of the following correctly identifies these three categories?", options:["Historical, Archaeological and Ecological","Cultural, Historical and Geological","Cultural, Natural and Mixed","Natural, Religious and Architectural"], answer:2},
+
+{q:"Under UNESCO's World Heritage selection framework, how many criteria have been prescribed for the selection of properties for inclusion in the World Heritage List?", options:["Six","Eight","Twelve","Ten"], answer:3},
+
+{q:"A property seeking inclusion in the UNESCO World Heritage List must demonstrate Outstanding Universal Value (OUV) and satisfy at least how many of the ten selection criteria?", options:["At least one criterion","At least two criteria","At least three criteria","All ten criteria"], answer:0},
+
+{q:"Under the UNESCO World Heritage selection criteria, criteria I to VI are associated with which category of heritage?", options:["Natural Heritage","Cultural Heritage","Mixed Heritage","Intangible Cultural Heritage"], answer:1},
+
+{q:"The UNESCO World Heritage selection criteria are divided into two groups. Which criteria are related to Natural Heritage?", options:["Criteria I to IV","Criteria I to VI","Criteria VII to X","Criteria V to X"], answer:2},
+
+{q:"The World Heritage Fund, established under Article 15 of the 1972 World Heritage Convention, primarily provides financial assistance for which purpose?", options:["Promotion of international tourism","Construction of new urban infrastructure","Funding of UNESCO headquarters","Protection and conservation of World Heritage properties"], answer:3},
+
+{q:"Under which Article of the 1972 UNESCO World Heritage Convention was the World Heritage Fund established to support the conservation of heritage properties?", options:["Article 15","Article 10","Article 21","Article 30"], answer:0},
+
+{q:"Which of the following is a source of resources for the UNESCO World Heritage Fund, established to provide financial assistance for heritage conservation?", options:["Only compulsory contributions from developing countries","Compulsory contributions, voluntary contributions, donations and other sources","Only private-sector investments","Only tourism revenue collected by UNESCO"], answer:1},
+
+{q:"According to the supplied 2026 data, India has 45 UNESCO World Heritage properties. How many of these are classified as Cultural Heritage Sites?", options:["35","36","37","38"], answer:2},
+
+{q:"India has 45 UNESCO World Heritage Sites according to the provided details. How many of these are classified as Natural Heritage Sites?", options:["5","6","8","7"], answer:3},
+
+{q:"Out of India's 45 UNESCO World Heritage properties, how many are classified as Mixed World Heritage Sites, possessing both cultural and natural significance?", options:["1","2","3","4"], answer:0},
+
+{q:"According to the provided information, India ranks sixth globally in terms of the number of UNESCO World Heritage properties. What is its position in the Asia-Pacific region?", options:["First","Second","Third","Fourth"], answer:1},
+
+{q:"According to the supplied UNESCO World Heritage statistics, how many States Parties have ratified the 1972 World Heritage Convention?", options:["189","193","196","201"], answer:2},
+
+{q:"The Ancient Buddhist Site of Sarnath, situated near Varanasi in Uttar Pradesh, was inscribed as India's 45th UNESCO World Heritage property in which month and year?", options:["January 2025","March 2026","October 2025","July 2026"], answer:3},
+
+{q:"Sarnath, the Ancient Buddhist Site recently included in India's UNESCO World Heritage List according to the given information, is located near which major city in Uttar Pradesh?", options:["Varanasi","Prayagraj","Lucknow","Gorakhpur"], answer:0},
+
+{q:"Sarnath holds immense religious significance in Buddhism because Gautama Buddha delivered his first sermon there after attaining enlightenment at Bodh Gaya. What is this event known as?", options:["Mahaparinirvana","Dharmachakra Pravartana","Bodhi Prapti","Dharma Sangiti"], answer:1},
+
+{q:"The event in which Gautama Buddha delivered his first sermon at Sarnath is known as Dharmachakra Pravartana. What does this expression mean?", options:["Attainment of enlightenment","Great passing away","Turning of the Wheel of Dharma","Birth of the Buddha"], answer:2},
+
+{q:"Sarnath is recognised as one of the four major pilgrimage sites associated with the life of Gautama Buddha. Where did Buddha attain enlightenment before delivering his first sermon at Sarnath?", options:["Lumbini","Kushinagar","Sarnath","Bodh Gaya"], answer:3},
+
+{q:"Khangchendzonga National Park, located in Sikkim, was inscribed on the UNESCO World Heritage List in which year?", options:["2016","2014","2018","2020"], answer:0},
+
+{q:"Khangchendzonga National Park is India's only Mixed UNESCO World Heritage Site, recognised for both its cultural and natural heritage. In which state is it located?", options:["Arunachal Pradesh","Sikkim","Uttarakhand","Himachal Pradesh"], answer:1},
+
+{q:"Khangchendzonga National Park, a UNESCO Mixed World Heritage Site in Sikkim, is also associated with which major ecological region?", options:["Western Ghats biodiversity hotspot","Indo-Burma biodiversity hotspot","Eastern Himalaya biodiversity hotspot","Sundaland biodiversity hotspot"], answer:2},
+
+{q:"According to the supplied global UNESCO World Heritage statistics, which country has the highest number of World Heritage properties, with 62 sites?", options:["China","France","Germany","Italy"], answer:3},
+
+{q:"According to the given country-wise UNESCO World Heritage statistics, which country ranks second globally with 61 World Heritage properties, immediately after Italy?", options:["China","France","Germany","Spain"], answer:0},
+
+{q:"According to the supplied country-wise UNESCO World Heritage statistics, which country has 56 World Heritage properties and occupies the third position?", options:["Germany","France","Spain","India"], answer:1},
+
+{q:"Which of the following countries is correctly matched with its number of UNESCO World Heritage properties according to the supplied statistics?", options:["Spain – 55","Germany – 50","Germany – 55","Mexico – 45"], answer:2},
+
+{q:"The Sun Temple at Konark, a UNESCO World Heritage property famous for its architectural representation of a gigantic chariot, is located in which Indian state?", options:["Gujarat","Tamil Nadu","Bihar","Odisha"], answer:3},
+
+{q:"The Group of Monuments at Hampi, recognised by UNESCO for its outstanding historical and architectural significance, is located in which state?", options:["Karnataka","Andhra Pradesh","Telangana","Tamil Nadu"], answer:0},
+
+{q:"Rani-ki-Vav, a UNESCO World Heritage Site famous for its elaborate stepwell architecture and sculptural decorations, is located at Patan in which state?", options:["Rajasthan","Gujarat","Madhya Pradesh","Maharashtra"], answer:1},
+
+{q:"The Great Living Chola Temples, a UNESCO World Heritage property representing the architectural achievements of the Chola dynasty, are located in which Indian state?", options:["Karnataka","Kerala","Tamil Nadu","Andhra Pradesh"], answer:2},
+
+{q:"The Mahabodhi Temple Complex, a UNESCO World Heritage Site associated with Gautama Buddha's enlightenment, is located at Bodh Gaya in which state?", options:["Uttar Pradesh","Jharkhand","Odisha","Bihar"], answer:3},
+
+{q:"According to the supplied information, which Indian state has the highest number of UNESCO World Heritage Sites, with seven properties?", options:["Maharashtra","Rajasthan","Tamil Nadu","Karnataka"], answer:0},
+
+{q:"According to the UNESCO World Heritage Centre data provided, how many Indian properties were included in the Tentative List as of 28 September 2026?", options:["75","81","85","90"], answer:1},
+
+{q:"The UNESCO Tentative List is an inventory of properties that a country intends to consider for nomination to the World Heritage List. What is its significance in the nomination process?", options:["It automatically grants World Heritage status","It provides permanent international protection","It is a prerequisite for nomination to the World Heritage List","It replaces the final evaluation by UNESCO"], answer:2},
+
+{q:"Which organisation functions as India's nodal agency for World Heritage matters and is responsible for the protection and conservation of several centrally protected monuments?", options:["Indian Council of Historical Research (ICHR)","National Monuments Authority (NMA)","National Archives of India","Archaeological Survey of India (ASI)"], answer:3},
+
+{q:"The Archaeological Survey of India (ASI), which serves as India's nodal agency for World Heritage matters, functions under which Union Ministry?", options:["Ministry of Culture","Ministry of Tourism","Ministry of Education","Ministry of Housing and Urban Affairs"], answer:0},
+
+{q:"The 48th Session of the UNESCO World Heritage Committee was held in which city and country, according to the supplied information?", options:["Paris, France","Busan, South Korea","Rome, Italy","New Delhi, India"], answer:1},
+
+{q:"The UNESCO World Heritage Committee is supported by three advisory bodies. Which organisation evaluates cultural heritage properties for possible inclusion in the World Heritage List?", options:["IUCN","ICCROM","ICOMOS","UNEP"], answer:2},
+
+{q:"The International Union for Conservation of Nature (IUCN) is one of the advisory bodies of the UNESCO World Heritage Committee. What is its primary responsibility in the World Heritage evaluation process?", options:["Evaluation of cultural monuments","Funding of restoration projects","Training heritage conservation professionals","Evaluation of natural heritage properties"], answer:3},
+
+{q:"The International Centre for the Study of the Preservation and Restoration of Cultural Property (ICCROM) is an advisory body to the UNESCO World Heritage Committee. Which of the following best describes its role?", options:["Providing expertise in conservation, restoration and capacity-building","Evaluating only natural heritage properties","Managing UNESCO's Tentative List","Registering all cultural properties in India"], answer:0},
+
+{q:"Which of the following correctly matches the three advisory bodies of the UNESCO World Heritage Committee with their respective functions?", options:["ICOMOS – Natural evaluation; IUCN – Cultural evaluation; ICCROM – Funding","ICOMOS – Cultural evaluation; IUCN – Natural evaluation; ICCROM – Conservation and restoration expertise","ICOMOS – Funding; IUCN – Restoration; ICCROM – Natural evaluation","ICOMOS – Tentative List; IUCN – Cultural evaluation; ICCROM – Tourism promotion"], answer:1},
+
+{q:"The UNESCO World Heritage Convention focuses on identifying and protecting properties of Outstanding Universal Value (OUV). Which of the following best describes the concept of OUV?", options:["A property that attracts the maximum number of tourists","A property that belongs exclusively to one country","A property whose cultural or natural significance is so exceptional that it transcends national boundaries","A property that is recognised only for its economic value"], answer:2},
+
+{q:"Which of the following Indian UNESCO World Heritage Sites is correctly matched with its state?", options:["Rani-ki-Vav – Maharashtra","Mahabodhi Temple – Uttar Pradesh","Sun Temple, Konark – West Bengal","Group of Monuments at Hampi – Karnataka"], answer:3},
+
+{q:"Consider the following statements regarding India's UNESCO World Heritage properties: 1. India has 45 properties according to the supplied 2026 data. 2. Khangchendzonga National Park is India's only Mixed World Heritage Site. 3. Sarnath became India's 45th World Heritage property in July 2026. Which of the above statements are correct?", options:["All 1, 2 and 3","Only 1 and 2","Only 2 and 3","Only 1 and 3"], answer:0},
+
+{q:"Which of the following correctly identifies the UNESCO World Heritage Site and its associated location?", options:["Mahabodhi Temple Complex – Patan, Gujarat","Rani-ki-Vav – Patan, Gujarat","Sun Temple – Hampi, Karnataka","Great Living Chola Temples – Bodh Gaya, Bihar"], answer:1},
+
+{q:"Which of the following statements about the UNESCO World Heritage Convention is INCORRECT?", options:["It was adopted on 16 November 1972.","It came into force on 17 December 1975.","India ratified it on 14 November 1977.","It was adopted in Ramsar, Iran, on 2 February 1971."], answer:3},
+
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 2700;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
